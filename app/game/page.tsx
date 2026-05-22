@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
@@ -46,6 +47,12 @@ export default function GameSetupPage() {
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,#ccfbf1,transparent_32rem),linear-gradient(135deg,#f8fafc,#eef2ff_55%,#fdf2f8)] px-4 py-8 text-zinc-950 dark:bg-[radial-gradient(circle_at_top_left,#134e4a,transparent_30rem),linear-gradient(135deg,#09090b,#111827_58%,#18181b)] dark:text-zinc-50 sm:px-8 lg:px-12">
       <section className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-5xl flex-col justify-center gap-8">
+        <Link
+          href="/"
+          className="w-fit rounded-[8px] border border-zinc-200 bg-white px-4 py-2 text-sm font-bold text-zinc-700 transition hover:border-teal-300 hover:text-teal-700 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300 dark:hover:border-teal-700 dark:hover:text-teal-300"
+        >
+          Home
+        </Link>
         <div className="max-w-3xl">
           <p className="text-sm font-semibold uppercase tracking-wide text-teal-700 dark:text-teal-300">
             HoLoCards

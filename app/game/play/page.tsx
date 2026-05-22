@@ -337,12 +337,20 @@ function GamePageContent() {
       `}</style>
 
       <section className="mx-auto flex w-full max-w-6xl flex-col gap-6">
-        <Link
-          href="/game"
-          className="w-fit rounded-[8px] border border-zinc-200 bg-white px-4 py-2 text-sm font-bold text-zinc-700 transition hover:border-teal-300 hover:text-teal-700 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300 dark:hover:border-teal-700 dark:hover:text-teal-300"
-        >
-          Change mode
-        </Link>
+        <nav className="flex flex-wrap gap-3">
+          <Link
+            href="/"
+            className="w-fit rounded-[8px] border border-zinc-200 bg-white px-4 py-2 text-sm font-bold text-zinc-700 transition hover:border-teal-300 hover:text-teal-700 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300 dark:hover:border-teal-700 dark:hover:text-teal-300"
+          >
+            Home
+          </Link>
+          <Link
+            href="/game"
+            className="w-fit rounded-[8px] border border-zinc-200 bg-white px-4 py-2 text-sm font-bold text-zinc-700 transition hover:border-teal-300 hover:text-teal-700 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300 dark:hover:border-teal-700 dark:hover:text-teal-300"
+          >
+            Change mode
+          </Link>
+        </nav>
         <header className="flex flex-col gap-4 border-b border-zinc-200/80 pb-5 dark:border-zinc-800 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-wide text-teal-700 dark:text-teal-300">
