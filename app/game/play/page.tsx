@@ -34,6 +34,11 @@ type LoadedCards = {
   statusMessage: string | null;
 };
 
+type PendingReplacement = {
+  card: Card;
+  replaceIndex: number;
+};
+
 const poolLabels: Record<string, string> = {
   all: "All Cards",
   pokemon: "Pokemon",
@@ -159,6 +164,8 @@ function GamePageContent() {
   const [score, setScore] = useState(0);
   const [feedback, setFeedback] = useState<Feedback>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [pendingReplacement, setPendingReplacement] =
+    useState<PendingReplacement | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isResolving, setIsResolving] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -207,6 +214,7 @@ function GamePageContent() {
     setIsLoading(true);
     setFeedback(null);
     setSelectedId(null);
+    setPendingReplacement(null);
     setScore(0);
 
     const nextGame = await loadCards();
@@ -238,8 +246,29 @@ function GamePageContent() {
     };
   }, [loadCards]);
 
+  function handleNextRound() {
+    if (!pendingReplacement) {
+      return;
+    }
+
+    setCards((currentCards) => {
+      const nextCards = [...currentCards];
+      nextCards[pendingReplacement.replaceIndex] = pendingReplacement.card;
+      return nextCards;
+    });
+    setFeedback(null);
+    setSelectedId(null);
+    setPendingReplacement(null);
+  }
+
   async function handleChoose(chosen: Card) {
-    if (isResolving || isGameOver || cards.length !== 2 || !highCardId) {
+    if (
+      feedback ||
+      isResolving ||
+      isGameOver ||
+      cards.length !== 2 ||
+      !highCardId
+    ) {
       return;
     }
 
@@ -269,38 +298,26 @@ function GamePageContent() {
       const replacement = await fetchRandomCard(selectedPool, [chosen.id]);
 
       if (!replacement) {
-        window.setTimeout(() => {
-          setFeedback({
-            kind: "correct",
-            title: "Correct!",
-            detail: "No additional cards are available in the database yet.",
-          });
-          setSelectedId(null);
-          setIsResolving(false);
-        }, 650);
-        return;
-      }
-
-      window.setTimeout(() => {
-        setCards((currentCards) => {
-          const nextCards = [...currentCards];
-          nextCards[replaceIndex] = replacement;
-          return nextCards;
-        });
-        setFeedback(null);
-        setSelectedId(null);
-        setIsResolving(false);
-      }, 650);
-    } catch {
-      window.setTimeout(() => {
         setFeedback({
           kind: "correct",
           title: "Correct!",
-          detail: "The next card could not be loaded from the database.",
+          detail: "No additional cards are available in the database yet.",
         });
         setSelectedId(null);
         setIsResolving(false);
-      }, 650);
+        return;
+      }
+
+      setPendingReplacement({ card: replacement, replaceIndex });
+      setIsResolving(false);
+    } catch {
+      setFeedback({
+        kind: "correct",
+        title: "Correct!",
+        detail: "The next card could not be loaded from the database.",
+      });
+      setSelectedId(null);
+      setIsResolving(false);
     }
   }
 
@@ -370,6 +387,14 @@ function GamePageContent() {
               >
                 Restart
               </button>
+            ) : pendingReplacement ? (
+              <button
+                type="button"
+                onClick={handleNextRound}
+                className="mt-4 rounded-[8px] bg-white px-5 py-3 text-sm font-bold text-emerald-700 transition hover:bg-emerald-50"
+              >
+                Next cards
+              </button>
             ) : null}
           </div>
         ) : null}
@@ -397,7 +422,7 @@ function GamePageContent() {
           <div className="grid gap-6 lg:grid-cols-[1fr_auto_1fr] lg:items-center">
             <GameCard
               card={cards[0]}
-              disabled={isResolving || isGameOver}
+              disabled={isResolving || Boolean(feedback)}
               reveal={revealPrices}
               selected={selectedId === cards[0]?.id}
               onChoose={handleChoose}
@@ -407,7 +432,7 @@ function GamePageContent() {
             </div>
             <GameCard
               card={cards[1]}
-              disabled={isResolving || isGameOver}
+              disabled={isResolving || Boolean(feedback)}
               reveal={revealPrices}
               selected={selectedId === cards[1]?.id}
               onChoose={handleChoose}
