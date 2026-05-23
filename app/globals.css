@@ -25,6 +25,76 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+.home-roller {
+  background: #12151a;
+}
+
+.home-roller::after {
+  background: linear-gradient(
+    90deg,
+    rgba(18, 21, 26, 0) 72%,
+    rgba(18, 21, 26, 0.86) 100%
+  );
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+  z-index: 2;
+}
+
+.home-roller-right::after {
+  background: linear-gradient(
+    270deg,
+    rgba(18, 21, 26, 0) 72%,
+    rgba(18, 21, 26, 0.86) 100%
+  );
+}
+
+.home-roller-track {
+  display: flex;
+  flex-direction: column;
+  min-height: 200%;
+  width: 100%;
+}
+
+.home-roller-track-up {
+  animation: homeRollUp 58s linear infinite;
+}
+
+.home-roller-track-down {
+  animation: homeRollDown 62s linear infinite;
+  transform: translateY(-50%);
+}
+
+.home-roller-image {
+  display: block;
+  flex: 0 0 auto;
+  height: auto;
+  min-height: 100vh;
+  object-fit: cover;
+  width: 100%;
+}
+
+@keyframes homeRollUp {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(-50%);
+  }
+}
+
+@keyframes homeRollDown {
+  from {
+    transform: translateY(-50%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
 .home-sparkles {
   pointer-events: none;
   position: absolute;
@@ -124,8 +194,12 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .home-roller-track,
   .home-sparkle {
     animation: none;
+  }
+
+  .home-sparkle {
     opacity: 0.6;
   }
 }

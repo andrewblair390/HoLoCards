@@ -68,29 +68,51 @@ export default function Home() {
 
   return (
     <main className="relative box-border flex min-h-[100svh] overflow-hidden bg-[#12151a] px-[clamp(0.75rem,2vw,1.5rem)] py-[clamp(0.75rem,1.6vw,1rem)] text-white">
-      <div className="absolute inset-y-0 left-0 hidden w-[clamp(18.75rem,29vw,26.125rem)] overflow-hidden lg:block">
-        <Image
-          src="/figma/home-card-collage.png"
-          alt=""
-          fill
-          priority
-          sizes="29vw"
-          className="object-cover object-left"
-        />
+      <div className="home-roller home-roller-left absolute inset-y-0 left-0 hidden w-[clamp(18.75rem,29vw,26.125rem)] overflow-hidden lg:block">
+        <div className="home-roller-track home-roller-track-down">
+          <Image
+            src="/figma/left-roller-banner.png"
+            alt=""
+            width={535}
+            height={2977}
+            priority
+            sizes="29vw"
+            className="home-roller-image"
+          />
+          <Image
+            src="/figma/left-roller-banner.png"
+            alt=""
+            width={535}
+            height={2977}
+            sizes="29vw"
+            className="home-roller-image"
+          />
+        </div>
       </div>
-      <div className="absolute inset-y-0 right-0 hidden w-[clamp(17.5rem,27vw,24.313rem)] overflow-hidden lg:block">
-        <Image
-          src="/figma/home-card-collage.png"
-          alt=""
-          fill
-          priority
-          sizes="27vw"
-          className="object-cover object-right"
-        />
+      <div className="home-roller home-roller-right absolute inset-y-0 right-0 hidden w-[clamp(17.5rem,27vw,24.313rem)] overflow-hidden lg:block">
+        <div className="home-roller-track home-roller-track-up">
+          <Image
+            src="/figma/right-roller-banner.png"
+            alt=""
+            width={533}
+            height={2986}
+            priority
+            sizes="27vw"
+            className="home-roller-image"
+          />
+          <Image
+            src="/figma/right-roller-banner.png"
+            alt=""
+            width={533}
+            height={2986}
+            sizes="27vw"
+            className="home-roller-image"
+          />
+        </div>
       </div>
       <div className="absolute inset-0 opacity-25 lg:hidden">
         <Image
-          src="/figma/home-card-collage.png"
+          src="/figma/left-roller-banner.png"
           alt=""
           fill
           priority
