@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 
-const MONGODB_URI = process.env.MONGODB_URI;
 interface GlobalMongoose {
   conn: typeof mongoose | null;
   promise: Promise<typeof mongoose> | null;
@@ -17,8 +16,12 @@ if (!cached) {
 }
 
 async function connectDB() {
-  if (!MONGODB_URI) {
-    throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
+  const mongoUri = process.env.MONGODB_URI;
+
+  if (!mongoUri) {
+    throw new Error(
+      'Missing MONGODB_URI. Add it to .env.local for local development and to your Vercel project environment variables for deployments.',
+    );
   }
 
   if (cached!.conn) {
@@ -28,9 +31,10 @@ async function connectDB() {
   if (!cached!.promise) {
     const opts = {
       bufferCommands: false,
+      serverSelectionTimeoutMS: 10000,
     };
 
-    cached!.promise = mongoose.connect(MONGODB_URI!, opts).then((mongooseInstance) => {
+    cached!.promise = mongoose.connect(mongoUri, opts).then((mongooseInstance) => {
       return mongooseInstance;
     });
   }

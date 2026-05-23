@@ -3,6 +3,8 @@ import connectDB from '@/lib/db';
 import Card from '@/models/card';
 import mongoose from 'mongoose';
 
+export const runtime = 'nodejs';
+
 const poolFilters: Record<string, string[]> = {
   pokemon: ['pokemon', 'pokémon', 'pkmn'],
   yugioh: ['yugioh', 'yu-gi-oh', 'yu-gi-oh!', 'ygo'],

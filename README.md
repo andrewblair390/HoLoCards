@@ -1,36 +1,74 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# HoLoCards
 
-## Getting Started
+A Next.js higher-or-lower trading card price game.
 
-First, run the development server:
+## Local Setup
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Create a local environment file:
+
+```bash
+cp .env.example .env.local
+```
+
+Set `MONGODB_URI` in `.env.local` to your MongoDB Atlas connection string:
+
+```bash
+MONGODB_URI=mongodb+srv://<username>:<password>@<cluster-host>/<database-name>?retryWrites=true&w=majority
+```
+
+Then run the app:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Database Access
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The app reads cards from the MongoDB collection named `Cards`.
 
-## Learn More
+Required card fields:
 
-To learn more about Next.js, take a look at the following resources:
+- `series`
+- `name`
+- `image-link`
+- `price`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Optional fields used for game filtering:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `game`
+- `tcg`
+- `cardGame`
+- `card_game`
+- `card-game`
+- `franchise`
 
-## Deploy on Vercel
+## Sharing The Repo
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+`.env.local` is intentionally ignored by Git because it contains database credentials. Anyone who clones the repo needs their own `.env.local` with a valid `MONGODB_URI`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+For collaborators, create a MongoDB Atlas database user with only the permissions they need, then share that connection string outside GitHub.
+
+## Vercel Deployment
+
+Add `MONGODB_URI` to the Vercel project:
+
+1. Go to the Vercel project dashboard.
+2. Open Settings > Environment Variables.
+3. Add `MONGODB_URI`.
+4. Select the environments that need it, usually Production, Preview, and Development.
+5. Redeploy the project after saving the variable.
+
+If you use MongoDB Atlas, the Atlas Network Access list must also allow requests from Vercel. Vercel serverless functions use dynamic outbound IPs by default, so either:
+
+- Allow access from anywhere in Atlas with `0.0.0.0/0` and use a strong database username/password, or
+- Use Vercel Static IPs / another fixed-egress setup and allowlist those IPs in Atlas.
+
+Do not commit a real MongoDB connection string to GitHub.
