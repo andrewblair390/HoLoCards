@@ -46,6 +46,8 @@ const poolLabels: Record<string, string> = {
   magic: "Magic: The Gathering",
 };
 
+const playerNameStorageKey = "holocards.playerName";
+
 function normalizeCard(card: ApiCard | null | undefined): Card | null {
   if (!card) {
     return null;
@@ -162,6 +164,7 @@ function GamePageContent() {
   const poolLabel = poolLabels[selectedPool] ?? "Selected Cards";
   const [cards, setCards] = useState<Card[]>([]);
   const [score, setScore] = useState(0);
+  const [playerName, setPlayerName] = useState("");
   const [feedback, setFeedback] = useState<Feedback>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [pendingReplacement, setPendingReplacement] =
@@ -180,6 +183,14 @@ function GamePageContent() {
 
     return cards[0].price >= cards[1].price ? cards[0].id : cards[1].id;
   }, [cards]);
+
+  useEffect(() => {
+    const nameTimer = window.setTimeout(() => {
+      setPlayerName(window.localStorage.getItem(playerNameStorageKey) ?? "");
+    }, 0);
+
+    return () => window.clearTimeout(nameTimer);
+  }, []);
 
   const loadCards = useCallback(async (): Promise<LoadedCards> => {
     try {
@@ -290,7 +301,16 @@ function GamePageContent() {
       title: "Correct!",
       detail: `${chosen.name} stays on the board.`,
     });
-    setScore((currentScore) => currentScore + 1);
+    const nextScore = score + 1;
+    setScore(nextScore);
+
+    if (playerName) {
+      void fetch("/api/leaderboard", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ playerName, score: nextScore }),
+      });
+    }
 
     const replaceIndex = cards.findIndex((card) => card.id !== chosen.id);
 
@@ -361,6 +381,16 @@ function GamePageContent() {
             </h1>
           </div>
           <div className="flex items-center gap-3">
+            {playerName ? (
+              <div className="rounded-[8px] border border-zinc-200 bg-white px-4 py-3 text-center shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+                <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                  Player
+                </p>
+                <p className="max-w-32 truncate text-xl font-black">
+                  {playerName}
+                </p>
+              </div>
+            ) : null}
             <div className="rounded-[8px] border border-zinc-200 bg-white px-4 py-3 text-center shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
               <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
                 Score

@@ -50,6 +50,18 @@ Optional fields used for game filtering:
 - `card-game`
 - `franchise`
 
+The leaderboard uses a separate collection named `Leaderboard`. You do not need
+to create it manually; MongoDB/Mongoose creates it the first time a player score
+is saved.
+
+Leaderboard fields:
+
+- `playerName`
+- `normalizedName`
+- `bestScore`
+- `createdAt`
+- `updatedAt`
+
 ## Sharing The Repo
 
 `.env.local` is intentionally ignored by Git because it contains database credentials. Anyone who clones the repo needs their own `.env.local` with a valid `MONGODB_URI`.

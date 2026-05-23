@@ -1,7 +1,71 @@
+ "use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { FormEvent, useEffect, useState } from "react";
+
+type LeaderboardEntry = {
+  playerName: string;
+  bestScore: number;
+};
+
+const playerNameStorageKey = "holocards.playerName";
 
 export default function Home() {
+  const [playerName, setPlayerName] = useState("");
+  const [nameDraft, setNameDraft] = useState("");
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+  const [leaderboardMessage, setLeaderboardMessage] = useState("Loading scores...");
+
+  useEffect(() => {
+    const nameTimer = window.setTimeout(() => {
+      const savedName = window.localStorage.getItem(playerNameStorageKey) ?? "";
+
+      if (savedName) {
+        setPlayerName(savedName);
+        setNameDraft(savedName);
+      }
+    }, 0);
+
+    async function loadLeaderboard() {
+      try {
+        const response = await fetch("/api/leaderboard", { cache: "no-store" });
+        const payload = await response.json();
+
+        if (!response.ok || !payload.success) {
+          throw new Error(payload.error ?? "Unable to load leaderboard.");
+        }
+
+        setLeaderboard(payload.data ?? []);
+        setLeaderboardMessage(
+          payload.data?.length ? "" : "No scores yet. Be the first on the board.",
+        );
+      } catch {
+        setLeaderboardMessage("Leaderboard is unavailable right now.");
+      }
+    }
+
+    void loadLeaderboard();
+
+    return () => window.clearTimeout(nameTimer);
+  }, []);
+
+  function handleNameSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const nextName = nameDraft.trim().replace(/\s+/g, " ").slice(0, 32);
+
+    if (!nextName) {
+      return;
+    }
+
+    window.localStorage.setItem(playerNameStorageKey, nextName);
+    setPlayerName(nextName);
+    setNameDraft(nextName);
+    setIsEditingName(false);
+  }
+
   return (
     <main className="relative box-border flex min-h-[100svh] overflow-hidden bg-[#12151a] px-[clamp(0.75rem,2vw,1.5rem)] py-[clamp(0.75rem,1.6vw,1rem)] text-white">
       <div className="absolute inset-y-0 left-0 hidden w-[clamp(18.75rem,29vw,26.125rem)] overflow-hidden lg:block">
@@ -50,12 +114,36 @@ export default function Home() {
           <p className="min-w-0 flex-1 whitespace-nowrap text-[clamp(1.75rem,5vw,4rem)] font-black leading-none tracking-normal">
             HoLo PACKS
           </p>
-          <button
-            type="button"
-            className="h-[clamp(2.75rem,5vw,4.313rem)] shrink-0 rounded-[clamp(1rem,2vw,1.563rem)] bg-white/35 px-[clamp(1rem,3.2vw,3rem)] text-[clamp(0.95rem,2vw,1.5rem)] font-black text-white transition hover:bg-white/45"
-          >
-            Login
-          </button>
+          {isEditingName ? (
+            <form
+              onSubmit={handleNameSubmit}
+              className="flex min-w-[clamp(10rem,24vw,16rem)] shrink-0 items-center gap-2 rounded-[clamp(1rem,2vw,1.563rem)] bg-white/20 p-2"
+            >
+              <input
+                value={nameDraft}
+                onChange={(event) => setNameDraft(event.target.value)}
+                maxLength={32}
+                autoFocus
+                aria-label="Player name"
+                placeholder="Name"
+                className="h-[clamp(2.25rem,4vw,3.25rem)] min-w-0 flex-1 rounded-[16px] border border-white/25 bg-white/85 px-3 text-sm font-black text-[#12151a] outline-none placeholder:text-zinc-500 focus:ring-4 focus:ring-white/35"
+              />
+              <button
+                type="submit"
+                className="h-[clamp(2.25rem,4vw,3.25rem)] rounded-[16px] bg-white px-3 text-sm font-black text-[#12151a] transition hover:bg-white/90"
+              >
+                Save
+              </button>
+            </form>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setIsEditingName(true)}
+              className="h-[clamp(2.75rem,5vw,4.313rem)] max-w-[clamp(8rem,22vw,14rem)] shrink-0 truncate rounded-[clamp(1rem,2vw,1.563rem)] bg-white/35 px-[clamp(1rem,3.2vw,3rem)] text-[clamp(0.95rem,2vw,1.5rem)] font-black text-white transition hover:bg-white/45"
+            >
+              {playerName || "Login"}
+            </button>
+          )}
         </header>
 
         <div className="mt-[clamp(1rem,3.2vh,2rem)] text-center">
@@ -105,6 +193,38 @@ export default function Home() {
             </Link>
           </div>
         </div>
+
+        <section className="relative z-10 mb-[clamp(0.75rem,2vh,1.5rem)] grid w-full gap-3 rounded-[16px] bg-black/35 p-[clamp(0.9rem,2vw,1.25rem)] shadow-2xl shadow-black/30 backdrop-blur">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-[clamp(1.15rem,2.5vw,1.75rem)] font-black tracking-normal">
+              Leaderboard
+            </h2>
+            {playerName ? (
+              <p className="max-w-[45%] truncate text-sm font-bold text-white/70">
+                Playing as {playerName}
+              </p>
+            ) : null}
+          </div>
+
+          {leaderboard.length ? (
+            <ol className="grid gap-2">
+              {leaderboard.map((entry, index) => (
+                <li
+                  key={entry.playerName}
+                  className="grid grid-cols-[2.5rem_1fr_auto] items-center gap-3 rounded-[8px] bg-white/10 px-3 py-2 text-sm font-bold"
+                >
+                  <span className="text-white/60">#{index + 1}</span>
+                  <span className="truncate">{entry.playerName}</span>
+                  <span>{entry.bestScore}</span>
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <p className="rounded-[8px] bg-white/10 px-3 py-2 text-sm font-bold text-white/70">
+              {leaderboardMessage}
+            </p>
+          )}
+        </section>
       </section>
     </main>
   );
